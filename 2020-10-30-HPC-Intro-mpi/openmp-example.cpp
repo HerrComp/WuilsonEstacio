@@ -1,5 +1,7 @@
 #include <iostream>
 #include <omp.h>
+#include <cmath>
+#include <stdio.h>
 
 int main(int argc, char **argv)
 {
