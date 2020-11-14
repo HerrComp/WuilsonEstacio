@@ -1,0 +1,6 @@
+for n in 1 2 10 100 500 1000 5000;do
+	 echo -n ' 4n  '
+	 ./a.out  4n
+done . datos.txt
+
+	

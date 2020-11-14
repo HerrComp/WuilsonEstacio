@@ -1,0 +1,92 @@
+#include <iostream>
+#include <eigen3/Eigen/Dense>
+
+using Eigen::MatrixXd;
+
+int main(int argc, char **argv) {
+  MatrixXd m(2,2);
+  m(0,0)=3;
+  m(1,0)=2.5;
+  m(0,1)=-1;
+  m(1,1)=m(1,0)+m(0,1);
+  std::cout << m << std::endl;
+  
+  return 0;
+}
+
+
+--------------------------------------------------
+
+#include <iostream>
+#include <eigen3/Eigen/Dense>
+
+int main(int argc, char **argv) {
+
+  srand(2);
+  Eigen::MatrixXd m= Eigen::MatrixXd::Random(3,3);
+  std::cout << m << std::endl;
+  
+  return 0;
+}
+
+---------------------------------------------------------------------------------------
+
+#include <iostream>
+#include <eigen3/Eigen/Dense>
+
+int main(int argc, char **argv) {
+
+  srand(2);
+  Eigen::MatrixXd m= Eigen::MatrixXd::Random(3,3);
+  std::cout << m << std::endl;
+  
+  Eigen::Matrix2d m2;
+  m2 << 1,2,
+      4,4; 
+    std::cout << m2 << std::endl;  
+  return 0;
+}
+----------------------------------------------------------------------------------------
+#include <iostream>
+#include <eigen3/Eigen/Dense>
+ 
+using namespace std;
+using namespace Eigen;
+ 
+int main(int argc, char **argv) 
+{
+   Matrix3f A;
+   Vector3f b;
+   A << 1,2,3,  4,5,6,  7,8,10;
+   b << 3, 3, 4;
+   cout << "Here is the matrix A:\n" << A << endl;
+   cout << "Here is the vector b:\n" << b << endl;
+   Eigen::Vector3f x = A.colPivHouseholderQr().solve(b);
+   std::cout << "The solution is:\n" << x << std::endl;
+   std::cout << "error" << (A*x-b).norm() <<std::endl;
+}
+--------------------------------------------------
+
+#include <iostream>
+#include <cstdlib>
+#include <eigen3/Eigen/Dense>
+ 
+using namespace std;
+using namespace Eigen;
+ 
+int main(int argc, char **argv) 
+{
+  int N=std::atoi(argv[1]);
+  Eigen::MatrixXd A(N,N);
+  Eigen::VectorXd b(N);
+  A=Eigen::MatrixXd::Random(N,N);
+  b=Eigen::VectorXd::Random(N);
+  // A << 1,2,3,  4,5,6,  7,8,10;
+  // b << 3, 3, 4;
+   cout << "Here is the matrix A:\n" << A << endl;
+   cout << "Here is the vector b:\n" << b << endl;
+   Eigen::VectorXd x(N);
+   x = A.colPivHouseholderQr().solve(b);
+   std::cout << "The solution is:\n" << x << std::endl;
+   std::cout << "error" << (A*x-b).norm() <<std::endl;
+}
