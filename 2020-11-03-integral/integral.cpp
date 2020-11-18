@@ -9,9 +9,9 @@
 #include <numeric>
 
 
-const int N = 100000000;
+const int N = 1000000;
 const double XMIN = 0.0;
-const double XMAX = 1000.0;
+const double XMAX = 10.0;
 const double DX = (XMAX-XMIN)/N;
 
 double f(double x);
@@ -25,9 +25,11 @@ int main(void)
   std::vector<double> partial;
 
 //#pragma omp parallel for num_threads(nthreads) reduction(+:suma)  
+
 #pragma omp parallel
 {
-  int tid = omp_get_thread_num();
+  int tid = omp_get_thread_num(); //ask how many nthreads there are.
+  int tid = omp_get_thread_num(); // ask who i'm
   int nthreads = omp_get_thread_num();
 
   if(0==tid){
@@ -47,7 +49,7 @@ int main(void)
 
 std::cout << std::accumulate(partial.begin(), partial.end(), 0.0) << "\n";
 
-//std::cout << "Integral esperada : " << (XMAX*XMAX*XMAX - XMIN*XMIN*XMIN)/3 << std::endl;
+std::cout << "Integral esperada : " << (XMAX*XMAX*XMAX - XMIN*XMIN*XMIN)/3 << std::endl;
 
 return 0;
 }

@@ -1,0 +1,20 @@
+1 Elapsed -nan -nan
+1.347802778043885e+01  -nan -nan
+2 Elapsed -nan -nan
+1.347802778043885e+01  -nan -nan
+3 Elapsed -nan -nan
+1.347802778043885e+01  -nan -nan
+4 Elapsed -nan -nan
+1.347802778043885e+01  -nan -nan
+5 Elapsed -nan -nan
+1.347802778043885e+01  -nan -nan
+6 Elapsed -nan -nan
+1.347802778043885e+01  -nan -nan
+7 Elapsed -nan -nan
+1.347802778043885e+01  -nan -nan
+8 Elapsed -nan -nan
+1.347802778043885e+01  -nan -nan
+16 Elapsed -nan -nan
+1.347802778043885e+01  -nan -nan
+32 Elapsed -nan -nan
+1.347802778043885e+01  -nan -nan

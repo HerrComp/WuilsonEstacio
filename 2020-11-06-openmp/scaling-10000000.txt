@@ -1,0 +1,20 @@
+1  Elapsed time in ms: 620
+1.347186373308419e+01
+2  Elapsed time in ms: 571
+1.347186373308419e+01
+3  Elapsed time in ms: 686
+1.347186373308419e+01
+4  Elapsed time in ms: 594
+1.347186373308419e+01
+5  Elapsed time in ms: 605
+1.347186373308419e+01
+6  Elapsed time in ms: 800
+1.347186373308419e+01
+7  Elapsed time in ms: 863
+1.347186373308419e+01
+8  Elapsed time in ms: 756
+1.347186373308419e+01
+16  Elapsed time in ms: 855
+1.347186373308419e+01
+32  Elapsed time in ms: 759
+1.347186373308419e+01

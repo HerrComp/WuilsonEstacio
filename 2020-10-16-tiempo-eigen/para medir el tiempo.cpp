@@ -29,12 +29,13 @@ double solvesystem(int n)
   //std::cout<<"here is the vector b:\n" << b << std::endl;
   Eigen::VectorXd x(n);
 
-  auto start = std::chrono::steady_clock::now(); // para iniciar a medir el tiempo
+// para iniciar a medir el tiempo
+  auto start = std::chrono::steady_clock::now(); 
   x= A.partialPivLu().solve(b);
   auto end = std::chrono::steady_clock::now();
+//finaliza lamedicion del tiempo
 
-
-  double time = std::chrono::duration_cast<std::chrono::nanoseconds>(end-start).count()*1.0e-9;  // finaliza lo de la medicion del tiempo estamidiendo en nanosegundos
+  double time = std::chrono::duration_cast<std::chrono::nanoseconds>(end-start).count()*1.0e-9;  // cuadra unidades de dedicion del tiempo aqui estamidiendo en nanosegundos
   
   std::cout <<std::chrono::duration_cast<std::chrono::nanoseconds>(end-start).count()*1.0e-9 << std::endl;  // para imprimir la duracion del tiempo
 
