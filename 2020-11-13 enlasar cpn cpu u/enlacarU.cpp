@@ -12,3 +12,11 @@ git push origin master
 //para saber con cuantos procesadores estas traajando se hace 
 
 cat /proc/cpuinfo | grep process | wc -l
+
+
+// https://github.com/HerrComp/WuilsonEstacio
+// git remote show origin https://github.com/HerrComp/WuilsonEstacio 
+
+//git clone https://github.com/HerrComp/WuilsonEstacio
+
+//git clone waestacioro@168.176.35.111:/path/to/https://github.com/HerrComp/WuilsonEstacio

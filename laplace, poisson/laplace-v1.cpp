@@ -32,12 +32,12 @@ int main(void) {
   initial_conditions(data);
   boundary_conditions(data);
 
-  //init_gnuplot(); // para simulacion
+  init_gnuplot(); // para simulacion
   for (int istep = 0; istep < STEPS; ++istep) {
     evolve(data);
-    //plot_gnuplot(data);
+    plot_gnuplot(data);
   }
-  //print_gnuplot(data);
+  print_gnuplot(data);
   print_matrix(data);
   
   return 0;
