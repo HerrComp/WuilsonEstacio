@@ -1,4 +1,6 @@
 // mpic++ -g integral-mpiv4.cpp
+// mpirun -np 8 ./a.out
+// Wuilson Estacio
 #include <cstdio>
 #include <cstdlib>
 #include "mpi.h"
@@ -56,7 +58,7 @@ int main(int argc, char **argv)
   MPI_Reduce(&area, &total, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
   
   if (0 == pid) {
-    std::printf("El area total es %lf\n", total);
+    std::printf("El area total de la int es %lf\n", total);
   }
   
   
