@@ -1,3 +1,6 @@
+// mpic++ -std=c++17 -fsanitize=address -fconcepts -g -o3 laplace-mpivf.cpp
+//-Werror -Wall
+// mpirun -np 4 ./a.out
 #include <cmath>
 #include <iostream>
 #include <vector>
@@ -13,7 +16,6 @@ const double L = 1.479;
 double DELTA = L/N;
 const int STEPS = 200;
 
-//
 typedef std::vector<double> Matrix;
 
 void initial_conditions(Matrix &m);
@@ -112,6 +114,7 @@ void print_matrix_slice(double * array, int nx, int ny) {
 
 void mpi_interchange_data(int pid, int np, double * array, int nx, int ny) { // nx = Nl + 2
   if (0 != pid) {
+    //enviar hacia atras
     MPI_Send(array + ny, ny, MPI_DOUBLE, pid-1, 0, MPI_COMM_WORLD);
     MPI_Recv(array, ny, MPI_DOUBLE, pid-1, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
   }
@@ -135,22 +138,22 @@ void mpi_boundary_conditions(int pid, int np, double * array, int nx, int ny) {
   if (0 == pid) {
     ii = 1; // fila real
     for (jj = 0; jj < ny; ++jj)
-      array[ii * ny + jj] = 100.0;
+      array[ii * ny + jj] = 100;
   }
 
   if (pid == np-1) {
     ii = nx - 2; // fila real
     for (jj = 0; jj < ny; ++jj)
-      array[ii * ny + jj] = 0.0;
+      array[ii * ny + jj] = 0;
   }
   
   jj = 0;
   for (ii = 1; ii < nx - 1; ++ii)
-    array[ii * ny + jj] = 0.0;
+    array[ii * ny + jj] = 0;
 
   jj = ny - 1;
   for (ii = 1; ii < nx - 1; ++ii)
-    array[ii * ny + jj] = 0.0;
+    array[ii * ny + jj] = 0;
 }
 
 
@@ -214,19 +217,19 @@ void boundary_conditions(Matrix &m) {
 
   ii = 0;
   for (jj = 0; jj < N; ++jj)
-    m[ii * N + jj] = 100.0;
+    m[ii * N + jj] = 100;
 
   ii = N - 1;
   for (jj = 0; jj < N; ++jj)
-    m[ii * N + jj] = 0.0;
+    m[ii * N + jj] = 0;
 
   jj = 0;
   for (ii = 1; ii < N - 1; ++ii)
-    m[ii * N + jj] = 0.0;
+    m[ii * N + jj] = 0;
 
   jj = N - 1;
   for (ii = 1; ii < N - 1; ++ii)
-    m[ii * N + jj] = 0.0;
+    m[ii * N + jj] = 0;
 }
 
 void evolve(Matrix &m) {

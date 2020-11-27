@@ -1,7 +1,12 @@
-// mpic++ -std=c++17 -fsanitize=address -fconcepts -g -o3 laplace-mpiv3.cpp
+//mpic++ -std=c++17 -fsanitize=address -fconcepts -g -o3 laplace-mpiv2.cpp
 //-Werror -Wall
 // mpirun -np 4 ./a.out
 
+/* gnuplot
+set term pdf; set out 'matrix.pdf'
+set pm3d; set contour base
+splot 'datos1.txt' w pm3d
+*/
 #include <cmath>
 #include <iostream>
 #include <vector>
@@ -9,7 +14,6 @@
 #include <cstdlib>
 #include <cstdio>
 #include "mpi.h"
-
 
 // constants
 //const int N = int(L / DELTA) + 1;
@@ -30,7 +34,6 @@ void plot_gnuplot(const Matrix &m);
 
 void print_matrix_slice(double * array, int nx, int ny);
 void mpi_print_matrix(int pid, int np, double * array, int nx, int ny);
-void mpi_interchange_data(int pid, int np, double * array, int nx, int ny); // nx = Nl + 2
 
 int main(int argc, char **argv) {
   /*
@@ -45,40 +48,48 @@ int main(int argc, char **argv) {
   }
   //print_gnuplot(data);
   print_matrix(data);
+
+  return 0;
   */
   
-  N = std::atoi(argv[1]);
-  DELTA = L/N;
+  int N = std::atoi(argv[1]);// se sobre escribe
+  DELTA = L/N; //se recalcual
 
+// iniciamos mpi
   int pid, np;
   MPI_Init(&argc, &argv);
   MPI_Comm_rank(MPI_COMM_WORLD, &pid);
   MPI_Comm_size(MPI_COMM_WORLD, &np);
 
-  // local array
+  // local array incluyendo los ghost
   int Nl = N/np;
   double * data = new double [(Nl+2)*N] {0.0};
-  // llenar con el pid
-  std::fill(data, data + (Nl+2)*N, pid); 
-  // communication
-  mpi_interchange_data(pid, np, data, Nl+2, N);
-  // imprimir
+  // llenar con el pid actual
+  // fill recibe varios argmument
+  // solo necesita donde arranca y donde termina
+  // std::fill(inicia, finaliza, conque lo llenamos); 
+  std::fill(data, data + (Nl+2)*N, pid);  
+  // imprimir  //pid es quien soy yo, 
+  // np cuantos somos
   mpi_print_matrix(pid, np, data, Nl + 2, N);
 
-  delete [] data;
+  delete [] data; // para liberar memoria
   MPI_Finalize();
   return 0;
 }
-
+// esto imprime la Matri completa
+// yo imprimo mi matri
+    //pido las matrices de los demas y las imprimo
+    // de lo contrario envio mi matriz
 void mpi_print_matrix(int pid, int np, double * array, int nx, int ny){
   if (0 == pid) {
     print_matrix_slice(array, nx, ny);
-    double * buffer = new double [nx*ny];
+    double * buffer = new double [nx*ny];//para pedir memoria
     for (int ipid = 1; ipid < np; ++ipid) {
-      MPI_Recv(buffer, nx*ny, MPI_DOUBLE, ipid, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-      print_matrix_slice(buffer, nx, ny);
+      MPI_Recv(buffer, nx*ny, MPI_DOUBLE, ipid, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE); //recivi en buffer
+      print_matrix_slice(buffer, nx, ny);//impr en buffer
     }
-    delete [] buffer;
+    delete [] buffer; //liberar memoria
   } else {
     MPI_Send(array, nx*ny, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
   }
@@ -86,7 +97,7 @@ void mpi_print_matrix(int pid, int np, double * array, int nx, int ny){
 
 void print_matrix_slice(double * array, int nx, int ny) {
   for (int ii = 0 ; ii < nx; ++ii) {
-    if (0 == ii or ii == nx-1) {
+    if (0 == ii or ii == nx-1) { 
       std::cout << "G : " ;
     } else {
       std::cout << "  : " ;
@@ -98,16 +109,6 @@ void print_matrix_slice(double * array, int nx, int ny) {
   }
 }
 
-void mpi_interchange_data(int pid, int np, double * array, int nx, int ny) { // nx = Nl + 2
-  if (0 != pid) {
-    MPI_Send(array + ny, ny, MPI_DOUBLE, pid-1, 0, MPI_COMM_WORLD);
-    MPI_Recv(array, ny, MPI_DOUBLE, pid-1, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-  }
-  if (np-1 != pid) {
-    MPI_Send(array + ny*(nx - 2), ny, MPI_DOUBLE, pid+1, 1, MPI_COMM_WORLD);
-    MPI_Recv(array + ny*(nx - 1), ny, MPI_DOUBLE, pid+1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-  }
-}
 
 
 
@@ -188,5 +189,5 @@ void print_matrix(const Matrix &m) {
       std::cout << m[ii * N + jj] << "  " ;
     }
     std::cout << "\n";
-  } 
+  }
 }

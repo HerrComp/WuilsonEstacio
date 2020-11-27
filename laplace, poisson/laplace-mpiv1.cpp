@@ -1,6 +1,12 @@
-//mpic++ -std=c++17 -fsanitize=address -fconcepts -g -o3 laplace-v1.cpp
+//mpic++ -std=c++17 -fsanitize=address -fconcepts -g -o3 laplace-mpiv1.cpp
 //-Werror -Wall
+// mpirun -np 4 ./a.out
 
+/* gnuplot
+set term pdf; set out 'matrix.pdf'
+set pm3d; set contour base
+splot 'datos1.txt' w pm3d
+*/
 #include <cmath>
 #include <iostream>
 #include <vector>
@@ -16,15 +22,15 @@ const double L = 1.479;
 const double DELTA = L/N; // resolucion
 const int STEPS = 200;
 
-typedef std::vector<double> Matrix;
+typedef std::vector<double> Matrix; //modela arreglo unidim
 
-void initial_conditions(Matrix &m); 
-void boundary_conditions(Matrix &m);
-void evolve(Matrix &m);// propagacion
+void initial_conditions(Matrix &m); // Valor inicial a la matrisx
+void boundary_conditions(Matrix &m); //
+void evolve(Matrix &m);// propagacion de fronteras hacia el sistem
 void print_gnuplot(const Matrix &m);
 void print_matrix(const Matrix &m);
 void init_gnuplot(void); //impr commandos
-void plot_gnuplot(const Matrix &m);
+void plot_gnuplot(const Matrix &m);  // hacer enimation
 
 //
 int main(void) {
@@ -32,17 +38,17 @@ int main(void) {
   initial_conditions(data);
   boundary_conditions(data);
 
-  init_gnuplot(); // para simulacion
+  //init_gnuplot(); // para simulacion
   for (int istep = 0; istep < STEPS; ++istep) {
-    evolve(data);
-    plot_gnuplot(data);
+    evolve(data); //para evolucionar datos
+    //plot_gnuplot(data);
   }
   print_gnuplot(data);
   print_matrix(data);
   
   return 0;
 }
-// llena todo de unos
+// llena todo de unos, depende de la condicion of frontera
 void initial_conditions(Matrix &m) {
   for (int ii = 0; ii < N; ++ii) {
     for (int jj = 0; jj < N; ++jj) {
@@ -52,7 +58,7 @@ void initial_conditions(Matrix &m) {
 }
 // asocia valores en los bordes 
 /* 
-(x,y), (0,y)=0,(l,y)=0,(x,0)=0,(x,L)=100
+(x,y), (0,y)=0,(L,y)=0,(x,0)=0,(x,L)=100
 */
 void boundary_conditions(Matrix &m) {
   int ii = 0, jj = 0;
@@ -74,6 +80,7 @@ void boundary_conditions(Matrix &m) {
     m[ii * N + jj] = 0;
 
 }// recore la matrix y app algorit
+//y verifica que no estemosmodif la condition of frontera
 void evolve(Matrix &m) {
   for (int ii = 0; ii < N; ++ii) {
     for (int jj = 0; jj < N; ++jj) {
@@ -86,18 +93,18 @@ void evolve(Matrix &m) {
         continue;
       if (jj == N - 1)
         continue;
-      // evolve non boundary,si no estamos en una condicion de frontera se aplica elmetodo de relajacion
+      // evolve non boundary, si no estamos en una condicion de frontera se aplica elmetodo de relajacion
       m[ii * N + jj] = (m[(ii + 1) * N + jj] + m[(ii - 1) * N + jj] +
                         m[ii * N + jj + 1] + m[ii * N + jj - 1]) /
-                       4.0;
-    }
+                       4.0; //que es que el valor de mi selda es
+    } //el promedio delos valores de los vecionos 
   }
 }
-
+//
 void print_gnuplot(const Matrix &m) {
   for (int ii = 0; ii < N; ++ii) {
     for (int jj = 0; jj < N; ++jj) {
-      std::cout << ii * DELTA << " " << jj * DELTA << " " << m[ii * N + jj]
+      std::cout << ii * DELTA << " " << jj * DELTA << " " << m[ii * N + jj] //imprime condenada en i,j y en valor de la Mtx hay 
                 << "\n";
     }
     std::cout << "\n";
