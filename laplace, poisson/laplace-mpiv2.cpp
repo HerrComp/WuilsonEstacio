@@ -1,4 +1,4 @@
-//mpic++ -std=c++17 -fsanitize=address -fconcepts -g -o3 laplace-mpiv2.cpp
+//mpic++ -std=c++17 -fsanitize=address -fconcepts -g -O3 laplace-mpiv2.cpp
 //-Werror -Wall
 // mpirun -np 4 ./a.out
 
@@ -18,7 +18,7 @@ splot 'datos1.txt' w pm3d
 // constants
 //const int N = int(L / DELTA) + 1;
 int N = 10;
-const double L = 1.479;
+const double L = 1.500;
 double DELTA = L/N;
 const int STEPS = 200;
 
@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
 
 // iniciamos mpi
   int pid, np;
-  MPI_Init(&argc, &argv);
+  MPI_Init(&argc, &argv); //Para que todoslos procesos puedan leer lamisma linea de comandos
   MPI_Comm_rank(MPI_COMM_WORLD, &pid);
   MPI_Comm_size(MPI_COMM_WORLD, &np);
 

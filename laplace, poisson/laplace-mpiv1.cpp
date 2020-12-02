@@ -1,4 +1,4 @@
-//mpic++ -std=c++17 -fsanitize=address -fconcepts -g -o3 laplace-mpiv1.cpp
+//mpic++ -std=c++17 -fsanitize=address -fconcepts -g -O3 laplace-mpiv1.cpp
 //-Werror -Wall
 // mpirun -np 4 ./a.out
 
@@ -18,7 +18,7 @@ splot 'datos1.txt' w pm3d
 // constants
 //const int N = int(L / DELTA) + 1;
 const int N = 10;
-const double L = 1.479;
+const double L = 1.500;
 const double DELTA = L/N; // resolucion
 const int STEPS = 200;
 

@@ -9,7 +9,7 @@
 // constants
 //const int N = int(L / DELTA) + 1;
 int N = 10;
-const double L = 1.479;
+const double L = 1.500;
 double DELTA = L/N;
 const int STEPS = 200;
 

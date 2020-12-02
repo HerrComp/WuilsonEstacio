@@ -29,7 +29,7 @@ void plot_gnuplot(const Matrix &m);
 ////////////////// MPI versions
 void print_matrix_slice(double * array, int nx, int ny);
 void mpi_print_matrix(int pid, int np, double * array, int nx, int ny);
-void mpi_interchange_data(int pid, int np, double * array, int nx, int ny); // nx = Nl + 
+void mpi_interchange_data(int pid, int np, double * array, int nx, int ny); // nx = Nl + 2
 void mpi_initial_conditions(int pid, int np, double * array, int nx, int ny);
 void mpi_boundary_conditions(int pid, int np, double * array, int nx, int ny);
 void mpi_evolve(int pid, int np, double * array, int nx, int ny);
