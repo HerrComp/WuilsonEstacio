@@ -110,8 +110,6 @@ void print_matrix_slice(double * array, int nx, int ny) {
 }
 
 
-
-
 void initial_conditions(Matrix &m) {
   for (int ii = 0; ii < N; ++ii) {
     for (int jj = 0; jj < N; ++jj) {

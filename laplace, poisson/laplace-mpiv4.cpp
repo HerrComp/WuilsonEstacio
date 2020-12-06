@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
   mpi_initial_conditions(pid, np, data, Nl+2, N);
   // Interchange data or infromation
   mpi_interchange_data(pid, np, data, Nl+2, N);
-   // imprimir //pid es quien soy yo, 
+  // imprimir //pid es quien soy yo, 
   // np cuantos somos
   mpi_print_matrix(pid, np, data, Nl + 2, N);
 
