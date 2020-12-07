@@ -3,6 +3,11 @@
 // mpic++ -std=c++17 -O3 laplace-mpiv6.cpp
 // mpirun -np 4 ./a.out 12
 //Wuilson Estacio
+/* gnuplot
+set pm3d; set contour base
+set term pdf; set out 'matrix.pdf'
+splot 'datos1.txt' w pm3d
+*/
 
 #include <cmath>
 #include <iostream>
@@ -47,17 +52,17 @@ int main(int argc, char **argv) {
 
   // iniciamos mpi
   int pid, np;
-  MPI_Init(&argc, &argv); //Para que todos los procesos puedan leer lamisma linea de comandos
+  MPI_Init(&argc, &argv); //Para que todos los procesos puedan leer la misma linea de comandos
   MPI_Comm_rank(MPI_COMM_WORLD, &pid);
   MPI_Comm_size(MPI_COMM_WORLD, &np);
 
   // local array incluyendo los ghost
-  int Nl = N/np;
+  int Nl = N/np; // np es el numero de procesos 
   double * data = new double [(Nl+2)*N] {0.0};
   // llenar con el pid actual
   // fill recibe varios argmument
   // solo necesita donde arranca y donde termina
-  // std::fill(inicia, finaliza, conque lo llenamos);
+  // esto es std::fill(inicia, finaliza, conque lo llenamos); que significa la memoria corrida sierto dato.
   std::fill(data, data + (Nl+2)*N, pid); 
   // pid es quien soy yo, np cuantos somos
   // initial and boundary conditions
@@ -74,9 +79,9 @@ int main(int argc, char **argv) {
     mpi_interchange_data(pid, np, data, Nl+2, N);
   }
   // imprimir
-  mpi_print_matrix(pid, np, data, Nl + 2, N);
+  mpi_print_matrix(pid, np, data, Nl + 2, N);// para poder imprimir la matrix
   mpi_print_gnuplot(pid, np, data, Nl+2, N);
-  
+  // para graficar en gnuplot
   delete [] data; // para liberar memoria
   MPI_Finalize();
   return 0;
@@ -90,7 +95,7 @@ void mpi_print_matrix(int pid, int np, double * array, int nx, int ny){
     print_matrix_slice(array, nx, ny);
     double * buffer = new double [nx*ny];//para pedir memoria // buffer es un puntero . nx,ny es mi arreglo
     for (int ipid = 1; ipid < np; ++ipid) {
-      MPI_Recv(buffer, nx*ny, MPI_DOUBLE, ipid, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);//recivi en buffer
+      MPI_Recv(buffer, nx*ny, MPI_DOUBLE, ipid, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);//recibir en buffer
       print_matrix_slice(buffer, nx, ny);//imprime en buffer
     }
     delete [] buffer; //liberar memoria
@@ -99,18 +104,19 @@ void mpi_print_matrix(int pid, int np, double * array, int nx, int ny){
   }
 }
 
-void print_matrix_slice(double * array, int nx, int ny) {
+// esto para cuadrar el areglo de la matrix
+void print_matrix_slice(double * array, int nx, int ny) { //esto recibe un puntero o el nombre del arreglo es  un puntero
   for (int ii = 0 ; ii < nx; ++ii) {
-    if (0 == ii or ii == nx-1) {
-      std::cout << "G : " ;
+    // esta parte para saber cual fila es el ghost
+    if (0 == ii or ii == nx-1) { 
+      std::cout << "G : " ; 
     } else {
       std::cout << "  : " ;
-    }
+    } // hasta aqui 
     for (int jj = 0 ; jj < ny; ++jj) {
       //std::cout << array[ii*ny + jj] << "  ";
       std::printf("%6.1lf ", array[ii*ny + jj]);
-      // esto indica que imprima % numero de 6 casillas . 11 decimales, f de flotantes
-    }
+    }  // esto indica que imprima % numero de 6 casillas . 11 decimales, f de flotantes
     std::cout << "\n";
   }
 }
@@ -160,7 +166,7 @@ void mpi_boundary_conditions(int pid, int np, double * array, int nx, int ny) {
   // (0,y)  
   jj = 0;
   for (ii = 1; ii < nx - 1; ++ii)
-    array[ii * ny + jj] = 100;
+    array[ii * ny + jj] = 0;
   // (L,y)
   jj = ny - 1;
   for (ii = 1; ii < nx - 1; ++ii)
@@ -177,7 +183,7 @@ void mpi_evolve(int pid, int np, double * array, int nx, int ny) {
         continue;
       if (pid == np-1 && ii == nx - 2) // en esta parte estamos mirando la ultima parte de la matrix 
         continue;
-      if (jj == 0) // si estoy en la primera columna la saltamos y eso aplica para allword
+      if (jj == 0) // si estoy en la primera columna la saltamos y eso aplica para allworld
         continue;
       if (jj == ny - 1) // si estoy in the last columna la saltamos y eso aplica para allword
         continue;
@@ -191,31 +197,31 @@ void mpi_evolve(int pid, int np, double * array, int nx, int ny) {
 void mpi_print_gnuplot(int pid, int np, double * array, int nx, int ny)
 {
   if (0 == pid) {
-    mpi_print_gnuplot_slice(pid, np, array, nx, ny);
-    double * buffer = new double [nx*ny];
+    mpi_print_gnuplot_slice(pid, np, array, nx, ny); //
+    double * buffer = new double [nx*ny]; //para pedir memoria // buffer es un puntero . nx,ny es mi arreglo
     for (int ipid = 1; ipid < np; ++ipid) {
-      MPI_Recv(buffer, nx*ny, MPI_DOUBLE, ipid, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-      mpi_print_gnuplot_slice(ipid, np, buffer, nx, ny);
+      MPI_Recv(buffer, nx*ny, MPI_DOUBLE, ipid, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE); //recivi en buffer
+      mpi_print_gnuplot_slice(ipid, np, buffer, nx, ny); //imprime en buffer
     }
-    delete [] buffer;
+    delete [] buffer; //liberar memoria
   } else {
     MPI_Send(array, nx*ny, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
   }
 }
 
 void mpi_print_gnuplot_slice(int pid, int np, double * array, int nx, int ny) {
-  for (int ii = 1; ii < nx-1; ++ii) { // only real rows
-    for (int jj = 0; jj < ny; ++jj) {
-      std::cout << (ii-1 + pid*(nx-2)) * DELTA << " " << jj * DELTA << " " << array[ii * ny + jj] << "\n";
+  for (int ii = 1; ii < nx-1; ++ii) { // esto tiene encuenta solo las filas reales
+    for (int jj = 0; jj < ny; ++jj) { // aqui todas las columnas
+      std::cout << (ii-1 + pid*(nx-2)) * DELTA << " " << jj * DELTA << " " << array[ii * ny + jj] << "\n"; // esto va imprimiendo nuestros arreglos
     }
-    std::cout << "\n"; // separa las filas
+    std::cout << "\n"; // esto es para separa las filas
   }
 }
 
 
 
-///////////////////// serial
-
+// serial
+/*
 void initial_conditions(Matrix &m) {
   for (int ii = 0; ii < N; ++ii) {
     for (int jj = 0; jj < N; ++jj) {
@@ -295,3 +301,4 @@ void print_matrix(const Matrix &m) {
     std::cout << "\n";
   }
 }
+*/
