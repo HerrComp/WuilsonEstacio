@@ -1,6 +1,6 @@
 // mpic++ -std=c++17 -fsanitize=address -fconcepts -g -O3 laplace-mpivf.cpp
 //-Werror -Wall
-// mpic++ -std=c++17 -O3 laplace-mpiv6.cpp
+// mpic++ -std=c++17 -O3 laplace-mpiv8.cpp
 // mpirun -np 4 ./a.out 12
 //Wuilson Estacio
 /* gnuplot
@@ -24,26 +24,17 @@ const double L = 1.479;
 double DELTA = L/N;  // resolucion
 const int STEPS = 200;
 
-//modela arreglo unidim
-typedef std::vector<double> Matrix;
 
-void initial_conditions(Matrix &m);// Valor inicial a la matrix
-void boundary_conditions(Matrix &m);// propagacion de fronteras hacia el sistem
-void evolve(Matrix &m);
-void print_gnuplot(const Matrix &m);
-void print_matrix(const Matrix &m);
-void init_gnuplot(void); //impr commandos
-void plot_gnuplot(const Matrix &m);// hacer animation
 
-// MPI versions
+// MPI versions modela arreglo unidim
 void print_matrix_slice(double * array, int nx, int ny);
-void mpi_print_matrix(int pid, int np, double * array, int nx, int ny);
+void mpi_print_matrix(int pid, int np, double * array, int nx, int ny); // para generar el  arreglo de la matriz
 void mpi_interchange_data(int pid, int np, double * array, int nx, int ny); // nx = Nl + 2
-void mpi_initial_conditions(int pid, int np, double * array, int nx, int ny);
-void mpi_boundary_conditions(int pid, int np, double * array, int nx, int ny);
-void mpi_evolve(int pid, int np, double * array, int nx, int ny);
+void mpi_initial_conditions(int pid, int np, double * array, int nx, int ny); // Valor inicial a la matrix
+void mpi_boundary_conditions(int pid, int np, double * array, int nx, int ny); // propagacion de fronteras hacia el sistem
+void mpi_evolve(int pid, int np, double * array, int nx, int ny); // para hacer la ecolucion de la matrix
 void mpi_print_gnuplot(int pid, int np, double * array, int nx, int ny);
-void mpi_print_gnuplot_slice(int pid, int np, double * array, int nx, int ny);
+void mpi_print_gnuplot_slice(int pid, int np, double * array, int nx, int ny); // hacer animation
 
 int main(int argc, char **argv) {
   
@@ -79,7 +70,7 @@ int main(int argc, char **argv) {
     mpi_interchange_data(pid, np, data, Nl+2, N);
   }
   // imprimir
-  mpi_print_matrix(pid, np, data, Nl + 2, N);// para poder imprimir la matrix
+  mpi_print_matrix(pid, np, data, Nl + 2, N); // para poder imprimir la matrix
   mpi_print_gnuplot(pid, np, data, Nl+2, N);
   // para graficar en gnuplot
   delete [] data; // para liberar memoria
@@ -104,7 +95,7 @@ void mpi_print_matrix(int pid, int np, double * array, int nx, int ny){
   }
 }
 
-// esto para cuadrar el areglo de la matrix
+// esto para cuadrar el arreglo de la matrix
 void print_matrix_slice(double * array, int nx, int ny) { //esto recibe un puntero o el nombre del arreglo es  un puntero
   for (int ii = 0 ; ii < nx; ++ii) {
     // esta parte para saber cual fila es el ghost
@@ -161,12 +152,12 @@ void mpi_boundary_conditions(int pid, int np, double * array, int nx, int ny) {
   if (pid == np-1) { // porque este pid el que tiene la ultima parte de la matriz
     ii = nx - 2; // fila real
     for (jj = 0; jj < ny; ++jj)
-      array[ii * ny + jj] = 0;
+      array[ii * ny + jj] = 100;
   }
   // (0,y)  
   jj = 0;
   for (ii = 1; ii < nx - 1; ++ii)
-    array[ii * ny + jj] = 100;
+    array[ii * ny + jj] = 0;
   // (L,y)
   jj = ny - 1;
   for (ii = 1; ii < nx - 1; ++ii)
@@ -179,7 +170,7 @@ void mpi_evolve(int pid, int np, double * array, int nx, int ny) {
   for (int ii = 1; ii < nx-1; ++ii) { //qui estamos moviendonos desde el 1 hasta el nx-1 de las filas reales
     for (int jj = 0; jj < ny; ++jj) { // y aqui por todas las columnas
       // check if boundary y si estamos en el primer pid, primera parte de la matrix  y si estamos en la primera fila esa no la cambiamos porque es concidion de frontera.
-      if (0 == pid && ii == 1) // esto nos dice que si soy el pid o me salto esa casilla
+      if (0 == pid && ii == 1) // esto nos dice que si soy el pid 0 me salto esa casilla
         continue;
       if (pid == np-1 && ii == nx - 2) // en esta parte estamos mirando la ultima parte de la matrix 
         continue;
@@ -220,85 +211,3 @@ void mpi_print_gnuplot_slice(int pid, int np, double * array, int nx, int ny) {
 
 
 
-// serial
-/*
-void initial_conditions(Matrix &m) {
-  for (int ii = 0; ii < N; ++ii) {
-    for (int jj = 0; jj < N; ++jj) {
-      m[ii * N + jj] = 1.0;
-    }
-  }
-}
-
-void boundary_conditions(Matrix &m) {
-  int ii = 0, jj = 0;
-
-  ii = 0;
-  for (jj = 0; jj < N; ++jj)
-    m[ii * N + jj] = 100;
-
-  ii = N - 1;
-  for (jj = 0; jj < N; ++jj)
-    m[ii * N + jj] = 0;
-
-  jj = 0;
-  for (ii = 1; ii < N - 1; ++ii)
-    m[ii * N + jj] = 0;
-
-  jj = N - 1;
-  for (ii = 1; ii < N - 1; ++ii)
-    m[ii * N + jj] = 0;
-}
-
-void evolve(Matrix &m) {
-  for (int ii = 0; ii < N; ++ii) {
-    for (int jj = 0; jj < N; ++jj) {
-      // check if boundary
-      if (ii == 0)
-        continue;
-      if (ii == N - 1)
-        continue;
-      if (jj == 0)
-        continue;
-      if (jj == N - 1)
-        continue;
-      // evolve non boundary
-      m[ii * N + jj] = (m[(ii + 1) * N + jj] + m[(ii - 1) * N + jj] +
-                        m[ii * N + jj + 1] + m[ii * N + jj - 1]) /
-                       4.0;
-    }
-  }
-}
-
-void print_gnuplot(const Matrix &m) {
-  for (int ii = 0; ii < N; ++ii) {
-    for (int jj = 0; jj < N; ++jj) {
-      std::cout << ii * DELTA << " " << jj * DELTA << " " << m[ii * N + jj]
-                << "\n";
-    }
-    std::cout << "\n";
-  }
-}
-
-
-void init_gnuplot(void) {
-  std::cout << "set contour " << std::endl;
-  std::cout << "set terminal gif animate " << std::endl;
-  std::cout << "set out 'anim.gif' " << std::endl;
-}
-
-void plot_gnuplot(const Matrix &m) {
-  std::cout << "splot '-' w pm3d " << std::endl;
-  print_gnuplot(m);
-  std::cout << "e" << std::endl;
-}
-
-void print_matrix(const Matrix &m) {
-  for (int ii = 0; ii < N; ++ii) {
-    for (int jj = 0; jj < N; ++jj) {
-      std::cout << m[ii * N + jj] << "  " ;
-    }
-    std::cout << "\n";
-  }
-}
-*/

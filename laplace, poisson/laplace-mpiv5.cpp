@@ -25,8 +25,8 @@ typedef std::vector<double> Matrix;
 
 void initial_conditions(Matrix &m);// Valor inicial a la matrix
 void boundary_conditions(Matrix &m);
-void evolve(Matrix &m);// propagacion de fronteras hacia el sistem
-void print_gnuplot(const Matrix &m);
+void evolve(Matrix &m);// propagacion de fronteras hacia el sistema
+void print_gnuplot(const Matrix &m); //para hacer la animacion
 void print_matrix(const Matrix &m);
 void init_gnuplot(void);//impr commandos
 void plot_gnuplot(const Matrix &m);// hacer animation
