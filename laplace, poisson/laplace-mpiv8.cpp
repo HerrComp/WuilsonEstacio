@@ -2,9 +2,9 @@
 //-Werror -Wall
 // mpic++ -std=c++17 -O3 laplace-mpiv8.cpp
 // mpirun -np 4 ./a.out 12
-//Wuilson Estacio
+//Wuilson Estacio y Yul villaba
 /* gnuplot
-set pm3d; set contour base
+set pm3d; set contour
 set term pdf; set out 'matrix.pdf'
 splot 'datos1.txt' w pm3d
 */
